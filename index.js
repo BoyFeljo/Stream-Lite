@@ -7,7 +7,7 @@ const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
 
-// Função para parsear canais de TV com capas
+// Função para parsear todos os canais e incluir capas (logo)
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
@@ -36,27 +36,17 @@ function parseM3UChannels(m3uContent) {
         name = parts[1] ? parts[1].trim() : "Sem nome";
       }
 
-      current = { name, group };
-      if (logo) current.logo = logo;
+      current = { name, group, logo: logo || null };
     } else if (line.startsWith("http")) {
-      if (!current) current = { name: line, group: "Desconhecido" };
+      if (!current) current = { name: line, group: "Desconhecido", logo: null };
       current.url = line;
 
-      // Ignora filmes, séries, anime, cinema
-      const lowerName = current.name.toLowerCase();
-      const lowerGroup = current.group.toLowerCase();
-      const ignoreKeywords = ["movie", "filme", "serie", "series", "anime", "cinema"];
-      const isMovieOrSeries = ignoreKeywords.some(k => lowerName.includes(k) || lowerGroup.includes(k));
-
-      if (!isMovieOrSeries) {
-        channels.push(current);
-      }
-
+      channels.push(current);
       current = null;
     }
   }
 
-  // Remove duplicados
+  // Remove duplicados (mesma URL)
   const seen = new Set();
   const clean = [];
   for (const c of channels) {
@@ -73,7 +63,6 @@ function parseM3UChannels(m3uContent) {
   );
   const otherChannels = clean.filter(c => !sportChannels.includes(c));
 
-  // Junta canais de Sport primeiro e depois o resto
   const finalList = sportChannels.concat(otherChannels);
 
   return finalList;
@@ -108,4 +97,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
   }
-    }
+                               }
