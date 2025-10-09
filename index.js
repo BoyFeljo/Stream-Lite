@@ -1,13 +1,11 @@
 // index.js
 
-// URL da sua M3U
 const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687&type=m3u_plus&output=ts";
 
-// Cache em memória
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
 
-// Função para parsear todos os canais e incluir capas (logo)
+// Função para parsear apenas canais
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
@@ -41,31 +39,23 @@ function parseM3UChannels(m3uContent) {
       if (!current) current = { name: line, group: "Desconhecido", logo: null };
       current.url = line;
 
-      channels.push(current);
+      // Ignora links de vídeo direto (filmes/episódios)
+      if (!current.url.match(/\.(mp4|mkv|avi|mov|flv|webm)$/i)) {
+        channels.push(current);
+      }
+
       current = null;
     }
   }
 
-  // Remove duplicados (mesma URL)
+  // Remove duplicados
   const seen = new Set();
-  const clean = [];
-  for (const c of channels) {
-    if (!c.url) continue;
-    if (seen.has(c.url)) continue;
+  return channels.filter(c => {
+    if (!c.url) return false;
+    if (seen.has(c.url)) return false;
     seen.add(c.url);
-    clean.push(c);
-  }
-
-  // Prioriza canais de Sport/Futebol
-  const sportKeywords = ["futebol", "sport", "soccer", "football"];
-  const sportChannels = clean.filter(c =>
-    sportKeywords.some(k => c.name.toLowerCase().includes(k) || c.group.toLowerCase().includes(k))
-  );
-  const otherChannels = clean.filter(c => !sportChannels.includes(c));
-
-  const finalList = sportChannels.concat(otherChannels);
-
-  return finalList;
+    return true;
+  });
 }
 
 // Função principal para Vercel
@@ -73,12 +63,10 @@ export default async function handler(req, res) {
   try {
     const now = Date.now();
 
-    // Retorna cache se ainda válido
     if (cache.data && now - cache.timestamp < CACHE_TTL) {
       return res.status(200).json(cache.data);
     }
 
-    // Busca a M3U
     const response = await fetch(m3u_url);
     const text = await response.text();
 
@@ -88,13 +76,11 @@ export default async function handler(req, res) {
 
     const channels = parseM3UChannels(text);
 
-    // Atualiza cache
     cache.data = channels;
     cache.timestamp = now;
 
-    // Retorna JSON
     res.status(200).json(channels);
   } catch (err) {
     res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
   }
-                               }
+                 }
