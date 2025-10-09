@@ -7,7 +7,7 @@ const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
 
-// Função para parsear a M3U apenas canais de TV
+// Função para parsear canais de TV com capas
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
@@ -20,6 +20,7 @@ function parseM3UChannels(m3uContent) {
     if (line.startsWith("#EXTINF:")) {
       let name = null;
       let group = "Desconhecido";
+      let logo = null;
 
       const nameMatch = line.match(/tvg-name="([^"]*)"/i);
       if (nameMatch) name = nameMatch[1];
@@ -27,17 +28,21 @@ function parseM3UChannels(m3uContent) {
       const groupMatch = line.match(/group-title="([^"]*)"/i);
       if (groupMatch) group = groupMatch[1];
 
+      const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
+      if (logoMatch) logo = logoMatch[1];
+
       if (!name) {
         const parts = line.split(",", 2);
         name = parts[1] ? parts[1].trim() : "Sem nome";
       }
 
       current = { name, group };
+      if (logo) current.logo = logo;
     } else if (line.startsWith("http")) {
       if (!current) current = { name: line, group: "Desconhecido" };
       current.url = line;
 
-      // Filtra canais: ignora filmes/séries (palavras-chave)
+      // Ignora filmes, séries, anime, cinema
       const lowerName = current.name.toLowerCase();
       const lowerGroup = current.group.toLowerCase();
       const ignoreKeywords = ["movie", "filme", "serie", "series", "anime", "cinema"];
@@ -61,15 +66,15 @@ function parseM3UChannels(m3uContent) {
     clean.push(c);
   }
 
-  // Prioriza canais de futebol e entretenimento
-  const priorityKeywords = ["futebol", "sport", "soccer", "entretenimento", "tv"];
-  const priority = clean.filter(c =>
-    priorityKeywords.some(k => c.name.toLowerCase().includes(k) || c.group.toLowerCase().includes(k))
+  // Prioriza canais de Sport/Futebol
+  const sportKeywords = ["futebol", "sport", "soccer", "football"];
+  const sportChannels = clean.filter(c =>
+    sportKeywords.some(k => c.name.toLowerCase().includes(k) || c.group.toLowerCase().includes(k))
   );
-  const others = clean.filter(c => !priority.includes(c));
+  const otherChannels = clean.filter(c => !sportChannels.includes(c));
 
-  // Junta os prioritários primeiro e corta até 500 canais
-  const finalList = priority.concat(others).slice(0, 500);
+  // Junta canais de Sport primeiro e depois o resto
+  const finalList = sportChannels.concat(otherChannels);
 
   return finalList;
 }
@@ -103,4 +108,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
   }
-      }
+    }
