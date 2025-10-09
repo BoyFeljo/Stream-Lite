@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 // URL da lista M3U
 const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687&type=m3u_plus&output=ts";
 
@@ -57,7 +55,7 @@ function parseM3UChannels(m3uContent) {
 // Função principal
 export default async function handler(req, res) {
   try {
-    const response = await fetch(m3u_url, { timeout: 20000 });
+    const response = await fetch(m3u_url, { method: "GET" });
     const text = await response.text();
 
     if (!text || (!text.includes("#EXTM3U") && !text.includes("#EXTINF"))) {
@@ -71,4 +69,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
   }
-  }
+        }
