@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/m3u2json.php", "use": "@vercel/php" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "api/m3u2json.php" }
+  ]
+}
