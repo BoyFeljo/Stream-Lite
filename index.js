@@ -7,7 +7,7 @@ const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
 
-// Função para parsear a M3U apenas canais
+// Função para parsear a M3U apenas canais de TV
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
@@ -36,7 +36,17 @@ function parseM3UChannels(m3uContent) {
     } else if (line.startsWith("http")) {
       if (!current) current = { name: line, group: "Desconhecido" };
       current.url = line;
-      channels.push(current);
+
+      // Filtra canais: ignora filmes/séries (palavras-chave)
+      const lowerName = current.name.toLowerCase();
+      const lowerGroup = current.group.toLowerCase();
+      const ignoreKeywords = ["movie", "filme", "serie", "series", "anime", "cinema"];
+      const isMovieOrSeries = ignoreKeywords.some(k => lowerName.includes(k) || lowerGroup.includes(k));
+
+      if (!isMovieOrSeries) {
+        channels.push(current);
+      }
+
       current = null;
     }
   }
@@ -51,7 +61,17 @@ function parseM3UChannels(m3uContent) {
     clean.push(c);
   }
 
-  return clean;
+  // Prioriza canais de futebol e entretenimento
+  const priorityKeywords = ["futebol", "sport", "soccer", "entretenimento", "tv"];
+  const priority = clean.filter(c =>
+    priorityKeywords.some(k => c.name.toLowerCase().includes(k) || c.group.toLowerCase().includes(k))
+  );
+  const others = clean.filter(c => !priority.includes(c));
+
+  // Junta os prioritários primeiro e corta até 500 canais
+  const finalList = priority.concat(others).slice(0, 500);
+
+  return finalList;
 }
 
 // Função principal para Vercel
@@ -83,4 +103,4 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
   }
-}
+      }
