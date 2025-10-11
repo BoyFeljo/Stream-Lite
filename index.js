@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://brx.si/get.php?username=magnun&password=magnun10&type=m3u_plus";
+const m3u_url = "http://v4.agenciav4.top:80/get.php?username=641591781&password=423532896&type=m3u";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
