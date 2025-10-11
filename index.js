@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://fbld.link:80/get.php?username=17145909&password=49841687&type=m3u_plus&output=ts";
+const m3u_url = "http://mbconteudo.top/get.php?username=111111&password=111111&type=m3u_plus";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
