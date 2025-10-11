@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://lazer.cfd:80/get.php?username=111111&password=111111&type=m3u";
+const m3u_url = "http://brx.si/get.php?username=magnun&password=magnun10&type=m3u_plus";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
