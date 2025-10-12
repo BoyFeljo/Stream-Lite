@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://prx02.online:80/get.php?username=victorazevedo3&password=582858190&type=m3u_plus&output=ts";
+const m3u_url = "http://asdns.lol/get.php?username=0118689&password=3451067&type=m3u_plus&output=ts";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
