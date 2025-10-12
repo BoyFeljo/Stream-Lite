@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://bananadoce.online/get.php?username=11947947032&password=marcelo0102&type=m3u_plus";
+const m3u_url = "http://prx02.online:80/get.php?username=victorazevedo3&password=582858190&type=m3u_plus&output=ts";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
