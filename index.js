@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://univision.asia:80/get.php?username=sandracaldeira&password=cacaf3b71d89a307&type=m3u_plus&output=ts";
+const m3u_url = "http://bananadoce.online/get.php?username=11947947032&password=marcelo0102&type=m3u_plus";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
