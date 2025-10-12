@@ -1,6 +1,6 @@
 // index.js
 
-const m3u_url = "http://turbocdn.sbs:80/get.php?username=4182369&password=9699683&type=m3u_plus&output=hls";
+const m3u_url = "http://carabina.pro/get.php?username=patricialittle&password=home123&type=m3u_plus";
 
 let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
