@@ -1,86 +1,78 @@
-// index.js
+// index.js — versão otimizada por Boy Feljo 💥
 
 const m3u_url = "http://asdns.lol/get.php?username=0118689&password=3451067&type=m3u_plus&output=ts";
 
+// Cache global (mantém por 3 dias)
 let cache = { timestamp: 0, data: null };
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas
+const CACHE_TTL = 3 * 24 * 60 * 60 * 1000; // 3 dias
 
-// Função para parsear apenas canais
+// Função de parsing super rápida
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
-  let current = null;
+  let name = "", group = "Desconhecido", logo = "", url = "";
 
   for (let line of lines) {
-    line = line.trim();
-    if (!line) continue;
-
     if (line.startsWith("#EXTINF:")) {
-      let name = null;
-      let group = "Desconhecido";
-      let logo = null;
-
-      const nameMatch = line.match(/tvg-name="([^"]*)"/i);
-      if (nameMatch) name = nameMatch[1];
-
-      const groupMatch = line.match(/group-title="([^"]*)"/i);
-      if (groupMatch) group = groupMatch[1];
-
-      const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
-      if (logoMatch) logo = logoMatch[1];
-
-      if (!name) {
-        const parts = line.split(",", 2);
-        name = parts[1] ? parts[1].trim() : "Sem nome";
-      }
-
-      current = { name, group, logo: logo || null };
+      name = line.match(/tvg-name="([^"]*)"/i)?.[1] || line.split(",")[1]?.trim() || "Sem nome";
+      group = line.match(/group-title="([^"]*)"/i)?.[1] || "Desconhecido";
+      logo = line.match(/tvg-logo="([^"]*)"/i)?.[1] || "";
     } else if (line.startsWith("http")) {
-      if (!current) current = { name: line, group: "Desconhecido", logo: null };
-      current.url = line;
-
-      // Ignora links de vídeo direto (filmes/episódios)
-      if (!current.url.match(/\.(mp4|mkv|avi|mov|flv|webm)$/i)) {
-        channels.push(current);
+      url = line.trim();
+      // Ignora arquivos de filmes diretos
+      if (!url.match(/\.(mp4|mkv|avi|mov|flv|webm)$/i)) {
+        channels.push({ name, group, logo, url });
       }
-
-      current = null;
     }
   }
 
-  // Remove duplicados
+  // Remove duplicados rapidamente
   const seen = new Set();
   return channels.filter(c => {
-    if (!c.url) return false;
-    if (seen.has(c.url)) return false;
+    if (!c.url || seen.has(c.url)) return false;
     seen.add(c.url);
     return true;
   });
 }
 
-// Função principal para Vercel
+// Função principal — Vercel Handler
 export default async function handler(req, res) {
   try {
     const now = Date.now();
 
+    // Parâmetro de busca
+    const q = req.query.q ? req.query.q.toLowerCase() : null;
+
+    // Usa cache se ainda válido
     if (cache.data && now - cache.timestamp < CACHE_TTL) {
-      return res.status(200).json(cache.data);
+      const filtered = q
+        ? cache.data.filter(c => c.name.toLowerCase().includes(q))
+        : cache.data;
+      return res.status(200).json(filtered);
     }
 
-    const response = await fetch(m3u_url);
+    // Faz fetch do servidor M3U
+    const response = await fetch(m3u_url, { cache: "no-store" });
     const text = await response.text();
 
-    if (!text || (!text.includes("#EXTM3U") && !text.includes("#EXTINF"))) {
-      return res.status(502).json({ error: "Conteúdo não parece M3U" });
+    if (!text.includes("#EXTM3U")) {
+      return res.status(502).json({ error: "Lista M3U inválida" });
     }
 
     const channels = parseM3UChannels(text);
 
-    cache.data = channels;
-    cache.timestamp = now;
+    // Atualiza cache
+    cache = { timestamp: now, data: channels };
 
-    res.status(200).json(channels);
+    const filtered = q
+      ? channels.filter(c => c.name.toLowerCase().includes(q))
+      : channels;
+
+    res.status(200).json(filtered);
   } catch (err) {
-    res.status(502).json({ error: "Falha ao carregar a lista M3U", details: err.message });
+    res.status(502).json({
+      error: "Falha ao carregar lista M3U",
+      details: err.message
+    });
   }
-                 }
+}
