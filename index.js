@@ -40,6 +40,15 @@ export default async function handler(req, res) {
   try {
     const now = Date.now();
 
+    // Permite CORS de qualquer origem
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).end(); // Preflight request
+    }
+
     // Parâmetro de busca
     const q = req.query.q ? req.query.q.toLowerCase() : null;
 
@@ -75,4 +84,4 @@ export default async function handler(req, res) {
       details: err.message
     });
   }
-}
+  }
