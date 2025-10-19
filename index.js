@@ -1,35 +1,12 @@
-// index.js — versão turbo por Boy Feljo 🚀
-
-import fs from "fs";
-import path from "path";
+// index.js — versão GitHub + Vercel ⚡ by Boy Feljo
 
 const m3u_url = "http://asdns.lol/get.php?username=0118689&password=3451067&type=m3u_plus&output=ts";
 
-// Caminho do cache local
-const CACHE_FILE = path.resolve("./cache.json");
+// Cache global (memória da instância — dura até 3 dias)
+let cache = { timestamp: 0, data: null };
 const CACHE_TTL = 3 * 24 * 60 * 60 * 1000; // 3 dias
 
-// Função para carregar cache salvo
-function loadCache() {
-  try {
-    if (!fs.existsSync(CACHE_FILE)) return null;
-    const data = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8"));
-    if (Date.now() - data.timestamp > CACHE_TTL) return null; // expirado
-    return data.channels;
-  } catch {
-    return null;
-  }
-}
-
-// Função para salvar cache em arquivo
-function saveCache(channels) {
-  fs.writeFileSync(
-    CACHE_FILE,
-    JSON.stringify({ timestamp: Date.now(), channels }, null, 2)
-  );
-}
-
-// Função de parsing super rápida ⚡
+// Função de parsing rápida
 function parseM3UChannels(m3uContent) {
   const lines = m3uContent.split(/\r?\n/);
   const channels = [];
@@ -57,12 +34,12 @@ function parseM3UChannels(m3uContent) {
   });
 }
 
-// 🔥 Função principal — Vercel Handler
+// 🧠 Função principal — handler Vercel
 export default async function handler(req, res) {
   try {
     const now = Date.now();
 
-    // CORS liberado
+    // CORS
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -70,18 +47,16 @@ export default async function handler(req, res) {
 
     const q = req.query.q ? req.query.q.toLowerCase() : null;
 
-    // 📂 Tenta carregar cache local
-    let channels = loadCache();
-    if (channels) {
-      console.log("✅ Usando cache salvo localmente!");
+    // ⚡ Usa cache se ainda válido
+    if (cache.data && now - cache.timestamp < CACHE_TTL) {
+      console.log("✅ Cache ativo");
       const filtered = q
-        ? channels.filter(c => c.name.toLowerCase().includes(q))
-        : channels;
+        ? cache.data.filter(c => c.name.toLowerCase().includes(q))
+        : cache.data;
       return res.status(200).json(filtered);
     }
 
-    // 🔄 Se não houver cache, busca online
-    console.log("⏳ Buscando nova lista M3U...");
+    console.log("⏳ Atualizando cache...");
     const response = await fetch(m3u_url, { cache: "no-store" });
     const text = await response.text();
 
@@ -89,8 +64,24 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: "Lista M3U inválida" });
     }
 
-    channels = parseM3UChannels(text);
-    saveCache(channels); // 💾 Salva no cache
+    const channels = parseM3UChannels(text);
+
+    // 🧩 Atualiza cache em memória
+    cache = { timestamp: now, data: channels };
+
+    // 💡 Opcional: gerar JSON público
+    // Pode exportar via GitHub Actions para servir direto como arquivo
+    // await fetch('https://api.github.com/repos/teu-usuario/teu-repo/contents/public/cache.json', {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     message: 'Atualiza cache IPTV',
+    //     content: Buffer.from(JSON.stringify(channels, null, 2)).toString('base64'),
+    //   }),
+    // });
 
     const filtered = q
       ? channels.filter(c => c.name.toLowerCase().includes(q))
