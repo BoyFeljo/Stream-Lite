@@ -71,7 +71,7 @@ export default async function handler(req, res) {
 
     // 💡 Opcional: gerar JSON público
     // Pode exportar via GitHub Actions para servir direto como arquivo
-    // await fetch('https://api.github.com/repos/teu-usuario/teu-repo/contents/public/cache.json', {
+    // await fetch('https://api.github.com/repos/BoyFeljo/Stream-Lite/contents/public/cache.json', {
     //   method: 'PUT',
     //   headers: {
     //     'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
