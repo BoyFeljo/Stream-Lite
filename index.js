@@ -1,4 +1,4 @@
-// index.js — versão GitHub + Vercel ⚡ by Boy Feljo
+// index.js — versão GitHub + Vercel ⚡ by Boy Feljo 🇲🇿
 
 const m3u_url = "http://asdns.lol/get.php?username=0118689&password=3451067&type=m3u_plus&output=ts";
 
