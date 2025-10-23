@@ -1,6 +1,6 @@
 // index.js — versão GitHub + Vercel ⚡ by Boy Feljo 🇲🇿
 
-const m3u_url = "http://asdns.lol/get.php?username=0118689&password=3451067&type=m3u_plus&output=ts";
+const m3u_url = "http://sigcine1.space:80/get.php?username=526311976&password=177652875&type=m3u_plus";
 
 // Cache global (memória da instância — dura até 3 dias)
 let cache = { timestamp: 0, data: null };
