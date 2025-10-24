@@ -1,7 +1,7 @@
 // /api/filmes.js — Versão Vercel ⚡ by Boy Feljo 🇲🇿
 
 // ✅ Link da tua lista M3U
-const M3U_URL = "http://sigcine1.space:80/get.php?username=526311976&password=177652875&type=m3u_plus";
+const M3U_URL = "http://sigcine1.space:80/get.php?username=517787912&password=322382287&type=m3u_plus";
 
 // Cache em memória (reset a cada nova instância)
 let cache = { timestamp: 0, data: null };
