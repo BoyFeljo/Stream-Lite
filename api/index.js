@@ -2,9 +2,9 @@
 
 const m3u_url = "http://turbo.gftv.in:80/get.php?username=189956566&password=823971614&type=m3u_plus";
 
-// Cache global (memória da instância — dura até 3 dias)
+// Cache global (memória da instância — dura até 6 horas)
 let cache = { timestamp: 0, data: null };
-const CACHE_TTL = 3 * 24 * 60 * 60 * 1000; // 3 dias
+const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 horas
 
 // Função de parsing rápida
 function parseM3UChannels(m3uContent) {
