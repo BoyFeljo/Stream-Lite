@@ -1,4 +1,4 @@
-// index.js — versão GitHub + Vercel ⚡ by Boy Feljo 🇲🇿
+// index.js — versão GitHub v + Vercel ⚡ by Boy Feljo 🇲🇿
 
 const m3u_url = "http://turbo.gftv.in:80/get.php?username=189956566&password=823971614&type=m3u_plus";
 
