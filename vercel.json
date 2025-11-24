@@ -1,11 +1,16 @@
 {
-  "version": 2,
+  "version": 3,
   "functions": {
-    "api/index.js": {
-      "runtime": "nodejs20.x"
+    "api/links.js": {
+      "memory": 128,
+      "maxDuration": 5
     }
   },
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.js" }
+    {
+      "src": "/api/links",
+      "dest": "/api/links.js",
+      "methods": ["GET", "POST", "OPTIONS"]
+    }
   ]
 }
