@@ -1,6 +1,6 @@
 {
   "manutencao": {
-    "ativo": false,
+    "ativo": true,
     "mensagem": "O Stream+ está em manutenção no momento. Voltaremos em breve!"
   },
   "atualizacao": {
