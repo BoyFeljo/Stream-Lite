@@ -1,8 +1,4 @@
 {
-  "manutencao": {
-    "ativo": true,
-    "mensagem": "O Stream+ está em manutenção no momento. Voltaremos em breve!"
-  },
-  "version": "1.0",
-  "download_url": "https://www.mediafire.com/file/q7cul1zz1lhytd2/Stream++Lite.apk/file"
+  "version": "2.8",
+  "download_url": "https://stream-lite.netlify.app/"
 }
